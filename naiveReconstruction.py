@@ -40,7 +40,6 @@ def sphere(center, R, X, Y, Z):
     implicit = (X - center[0]) ** 2 + (Y - center[1]) ** 2 + (Z - center[2]) ** 2 - R ** 2 
     return implicit
 
-
 def naiveReconstruction(points, normals, X, Y, Z):
     """
     surface reconstruction with an implicit function f(x,y,z) representing
@@ -55,21 +54,66 @@ def naiveReconstruction(points, normals, X, Y, Z):
     """
 
     ##########################################################
-    # <================START MODIFYING CODE<================>
+    # <================>START MODIFYING CODE<================>
     ##########################################################
 
-    # replace this random implicit function with your naive surface reconstruction implementation!
-    IF = np.random.rand(X.shape[0], X.shape[1], X.shape[2]) - 0.5
+    # def signedDistance(points, normals, X, Y, Z):
+    #     """
+    #     Computes the signed distance from a point to a plane defined by a point and its normal
+    #     Args:
+    #         points      : points off the plane
+    #         normals     : normals off the plane
+    #         grid_point  : point in space
+    #     Returns:
+    #         signed distance from each grid_point to the planes closest point
+    #     """
+    #     IF = np.zeros((X.shape[0], X.shape[1], X.shape[2]))
+    #     tree = KDTree(points)
+    #     for x in range(X.shape[0]):
+    #         for y in range(X.shape[1]):
+    #             for z in range(X.shape[2]):
+    #                 grid_point = np.array([X[x, y, z], Y[x, y, z], Z[x, y, z]])
+    #                 print(f"\r\tProcessing grid point: ({x}, {y}, {z})", end="")
+    #                 # Find nearest neighbor index using KDTree
+    #                 dist, idx = tree.query([grid_point], k=2)
+    #                 j = idx[0][0]
+    #                 pj = points[j]
+    #                 nj = normals[j]
+    #                 # Compute signed distance
+    #                 # f(p)=nj·(p-pj) with j=argmini{||p-pi||}
+    #                 IF[x, y, z] = np.dot(nj, grid_point - pj)
+    #     return IF
 
-    # this is an example of a kd-tree nearest neighbor search (adapt it accordingly for your task)
-	# use kd-trees to find nearest neighbors efficiently!
-	# kd-tree: https://en.wikipedia.org/wiki/K-d_tree
-    Q = np.array([X.reshape(-1), Y.reshape(-1), Z.reshape(-1)]).transpose()
-    tree = KDTree(points)
-    _, idx = tree.query(Q, k=2)  
+    def signedDistance(points, normals, X, Y, Z):
+        """
+        Computes the signed distance from a point to a plane defined by a point and its normal
+        Vectorized for efficiency.
+        Args:
+            points      : points off the plane
+            normals     : normals off the plane
+            grid_point  : point in space
+        Returns:
+            IF          : signed distance from each grid_point to the planes closest point
+        """
+        tree = KDTree(points)
+        # Create the grid of points
+        grid_points = np.stack([X.ravel(), Y.ravel(), Z.ravel()], axis=-1)
+        # Get the nearest points and normals
+        _, idx = tree.query(grid_points, k=2)
+        nearest_points = points[idx[:, 0]]
+        nearest_normals = normals[idx[:, 0]]
+        # Calculate the signed distance f(p)=nj·(p-pj) with j=argmini{||p-pi||}
+        diffs = grid_points - nearest_points
+        # Element-wise dot product https://numpy.org/doc/stable/reference/generated/numpy.einsum.html
+        signed_distances = np.einsum('ij,ij->i', nearest_normals, diffs)
+        # Return IF as a 3D array
+        IF = signed_distances.reshape(X.shape)
+        return IF
+
+    IF = signedDistance(points, normals, X, Y, Z) 
 	
     ##########################################################
-    # <================END MODIFYING CODE<================>
+    # <=================>END MODIFYING CODE<=================>
     ##########################################################
 
     return IF 
