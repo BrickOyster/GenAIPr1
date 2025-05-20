@@ -28,14 +28,13 @@ def train(dataset, model, optimizer, args):
         
         xyz_tensor = data['xyz'].to(device) # convert to tensor
         pred_sdf_tensor = model(xyz_tensor) # forward pass
-
-        # L(fθ(pi'), si) = |clamp(fθ(pi'), σ) - clamp(si, σ)|
         true_sdf_tensor = data['gt_sdf'].to(device) # ground truth sdf
 
+        # L(fθ(pi'), si) = |clamp(fθ(pi'), σ) - clamp(si, σ)|
         loss = torch.mean(torch.abs(torch.clamp(pred_sdf_tensor, -0.1, 0.1) - torch.clamp(true_sdf_tensor, -0.1, 0.1))) # L1 loss
+        
         loss.backward() # backpropagation
         loss_sum += loss.item() * xyz_tensor.shape[0] # accumulate loss
-
         loss_count += xyz_tensor.shape[0]
         
         optimizer.step()
@@ -57,14 +56,12 @@ def val(dataset, model, optimizer, args):
         with torch.no_grad():
             xyz_tensor = data['xyz'].to(device) # convert to tensor
             pred_sdf_tensor = model(xyz_tensor) # forward pass
-
-            # L(fθ(pi'), si) = |clamp(fθ(pi'), σ) - clamp(si, σ)|
             true_sdf_tensor = data['gt_sdf'].to(device) # ground truth sdf
 
+            # L(fθ(pi'), si) = |clamp(fθ(pi'), σ) - clamp(si, σ)|
             loss = torch.mean(torch.abs(torch.clamp(pred_sdf_tensor, -0.1, 0.1) - torch.clamp(true_sdf_tensor, -0.1, 0.1))) # L1 loss
             
             loss_sum += loss.item() * xyz_tensor.shape[0] # accumulate loss
-
             loss_count += xyz_tensor.shape[0]
 
     return loss_sum / loss_count
@@ -159,6 +156,7 @@ def main(args):
         save_checkpoint({"epoch": epoch + 1, "state_dict": model.state_dict(), "best_loss": best_loss, "optimizer": optimizer.state_dict()},
                         is_best, checkpoint_folder=args.checkpoint_folder)
         print(f"\rEpoch {epoch+1:d}. train_loss: {train_loss:.8f}. val_loss: {val_loss:.8f}. Best Epoch: {best_epoch+1:d}. Best val loss: {best_loss:.8f}.", end="")
+    print("")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='neural net reconstruction inspired by DeepSDF')
