@@ -108,10 +108,12 @@ def main(args):
         mkdir_p(args.checkpoint_folder)
 
     #default architecture following DeepSDF
-    model = Decoder(dims=[512, 512, 512, 512, 512, 512, 512, 512],
-                    dropout=[0, 1, 2, 3, 4, 5, 6, 7],
-                    norm_layers=[0, 1, 2, 3, 4, 5, 6, 7],
-                    latent_in=[4])
+    model = Decoder(dims=[3, 512, 512, 512, 509, 512, 512, 512, 1],
+                    dropout=[0, 1, 2, 3, 4, 5, 6],
+                    norm_layers=[0, 1, 2, 3, 4, 5, 6],
+                    leaky_relu=[0, 1, 2, 3, 4, 5, 6],
+                    operations=[(lambda a, b: torch.concat([a, b], axis=-1))],
+                    latent_in=[4],)
 
     model.to(device)
     print("=> Will use the (" + device.type + ") device.")
@@ -159,7 +161,7 @@ def main(args):
             best_epoch = epoch
         save_checkpoint({"epoch": epoch + 1, "state_dict": model.state_dict(), "best_loss": best_loss, "optimizer": optimizer.state_dict()},
                         is_best, checkpoint_folder=args.checkpoint_folder)
-        print(f"Epoch {epoch+1:d}. train_loss: {train_loss:.8f}. val_loss: {val_loss:.8f}. Best Epoch: {best_epoch+1:d}. Best val loss: {best_loss:.8f}.")
+        print(f"\rEpoch {epoch+1:d}. train_loss: {train_loss:.8f}. val_loss: {val_loss:.8f}. Best Epoch: {best_epoch+1:d}. Best val loss: {best_loss:.8f}.", end="")
 
 
 if __name__ == "__main__":
