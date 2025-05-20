@@ -18,15 +18,6 @@ class Decoder(nn.Module):
         operations=None
     ):
         super(Decoder, self).__init__()
-
-        ##########################################################
-        # <================START MODIFYING CODE<================>
-        ##########################################################
-        # **** YOU SHOULD IMPLEMENT THE MODEL ARCHITECTURE HERE ****
-        # Define the network architecture based on the figure shown in the assignment page.
-        # Read the instruction carefully for layer details.
-        # Pay attention that your implementation should include FC layers, weight_norm layers,
-        # Leaky ReLU layers, Dropout layers and a tanh layer.\
         self.ops = operations
 
         self.dropout_prob = dropout_prob
@@ -39,7 +30,6 @@ class Decoder(nn.Module):
         in_dim = dims.pop(0)
         for i in range(len(dims)):
             out_dim = dims.pop(0)
-            # If this is the layer after which we concatenate, increase in_dim
             if i in latent_in:
                 in_dim += self.input_dim
                 self.doops.append(opsused)
@@ -63,29 +53,12 @@ class Decoder(nn.Module):
         
         if use_tanh:
             self.layers.append(nn.Tanh()) 
-
-        # self.fc.append(nn.Sequential(*self.layers))
-        # ***********************************************************************
-        ##########################################################
-        # <================END MODIFYING CODE<================>
-        ##########################################################
     
     # input: N x 3
     def forward(self, input):
-
-        ##########################################################
-        # <================START MODIFYING CODE<================>
-        ##########################################################
-        # **** YOU SHOULD IMPLEMENT THE FORWARD PASS HERE ****
-        # Based on the architecture defined above, implement the feed forward procedure
-        
         x = input
         for i, layer in enumerate(self.layers):
             if self.doops[i] > -1:
                 x = self.ops[self.doops[i]](x, input)
             x = layer(x)
-        # ***********************************************************************
-        ##########################################################  
-        # <================END MODIFYING CODE<================>
-        ##########################################################
         return x

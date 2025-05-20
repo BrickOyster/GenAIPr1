@@ -53,37 +53,6 @@ def naiveReconstruction(points, normals, X, Y, Z):
         IF     : implicit function sampled at the grid points
     """
 
-    ##########################################################
-    # <================>START MODIFYING CODE<================>
-    ##########################################################
-
-    # def signedDistance(points, normals, X, Y, Z):
-    #     """
-    #     Computes the signed distance from a point to a plane defined by a point and its normal
-    #     Args:
-    #         points      : points off the plane
-    #         normals     : normals off the plane
-    #         grid_point  : point in space
-    #     Returns:
-    #         signed distance from each grid_point to the planes closest point
-    #     """
-    #     IF = np.zeros((X.shape[0], X.shape[1], X.shape[2]))
-    #     tree = KDTree(points)
-    #     for x in range(X.shape[0]):
-    #         for y in range(X.shape[1]):
-    #             for z in range(X.shape[2]):
-    #                 grid_point = np.array([X[x, y, z], Y[x, y, z], Z[x, y, z]])
-    #                 print(f"\r\tProcessing grid point: ({x}, {y}, {z})", end="")
-    #                 # Find nearest neighbor index using KDTree
-    #                 dist, idx = tree.query([grid_point], k=2)
-    #                 j = idx[0][0]
-    #                 pj = points[j]
-    #                 nj = normals[j]
-    #                 # Compute signed distance
-    #                 # f(p)=nj·(p-pj) with j=argmini{||p-pi||}
-    #                 IF[x, y, z] = np.dot(nj, grid_point - pj)
-    #     return IF
-
     def signedDistance(points, normals, X, Y, Z):
         """
         Computes the signed distance from a point to a plane defined by a point and its normal
@@ -112,10 +81,6 @@ def naiveReconstruction(points, normals, X, Y, Z):
 
     IF = signedDistance(points, normals, X, Y, Z) 
 	
-    ##########################################################
-    # <=================>END MODIFYING CODE<=================>
-    ##########################################################
-
     return IF 
 
 
